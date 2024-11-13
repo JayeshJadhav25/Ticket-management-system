@@ -189,18 +189,43 @@ const getTicketDetails = async (req, res) => {
 
 // Analytics for past tickets
 const getTicketAnalytics = async (req, res) => {
-    const filters = { ...req.query };
+
+    const filters = Object.fromEntries(
+        Object.entries(req.query).filter(([key, value]) => value && value.trim() !== '')
+    );
 
     const tickets = await Ticket.find(filters);
     const closedTickets = tickets.filter(ticket => ticket.status === 'closed').length;
     const openTickets = tickets.filter(ticket => ticket.status === 'open').length;
     const inProgressTickets = tickets.filter(ticket => ticket.status === 'in-progress').length;
 
+    const lowPriorityTickets = tickets.filter(ticket => ticket.priority === 'low').length;
+    const highPriorityTickets = tickets.filter(ticket => ticket.priority === 'high').length;
+    const mediumPriorityTickets = tickets.filter(ticket => ticket.priority === 'medium').length;
+
+    let priorityDistribution = {
+        lowPriorityTickets,
+        mediumPriorityTickets,
+        highPriorityTickets
+    }
+
+    const concertTypeTickets = tickets.filter(ticket => ticket.type === 'concert').length;
+    const conferenceTypeTickets = tickets.filter(ticket => ticket.type === 'conference').length;
+    const sportsTypeTickets = tickets.filter(ticket => ticket.type === 'sports').length;
+
+    let typeDistribution = {
+        concertTypeTickets,
+        conferenceTypeTickets,
+        sportsTypeTickets
+    }
+
     res.json({
         totalTickets: tickets.length,
         closedTickets,
         openTickets,
         inProgressTickets,
+        priorityDistribution,
+        typeDistribution,
         tickets
     });
 };

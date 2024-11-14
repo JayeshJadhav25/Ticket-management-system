@@ -16,6 +16,7 @@ app.get('/', (req, res) => {
         message: "Server is running.."
     })
 })
+
 app.use('/api', userRoutes);
 app.use('/api', ticketRoutes);
 
